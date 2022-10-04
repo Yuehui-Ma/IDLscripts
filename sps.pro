@@ -92,39 +92,6 @@ cgplot, [alog10(mean(sample[good])), alog10(mean(sample[good]))], [0,1], $
 endfor
 cgps_close
 
-;------------------plot the spectra (elliptical)--------------------------- 
-;cgps_open, spsfig, xsize = 10, ysize = 7, /encapsulated
-;;!p.font = -1
-;!p.charsize = 2
-;cgplot, 0, 0, /xlog, /ylog, psym = psym, color = 'red', position = [0.2, 0.2, 0.8, 0.8], $
-;        xrange = [lrange[0]*3, lrange[1]*0.5], yminor = 9, /nodata, yrange = [1e1, 1e9],$
-;        xtitle = 'Linear scale (pc)', ytitle = 'Power', title = 'Power Spectrum'
-;xdt = []
-;ydt = []
-;for i = 0, nannuli-1 do begin 
-;radius = kstep[i]
-;npoints = fix(2*!pi*radius/step) 
-;results = circle(center[0], center[1], radius, npoints, ratio)
-;;print, sqrt((results[0,*]-center[0])^2+(results[1,*]-center[1])^2), 'kstep i = ', kstep[i]
-;sample = interpolate(linpower, results[0,*], results[1, *], missing = 0)
-;length = spatial_ex/sqrt((results[0, *] - center[0])^2 + (results[1, *] - center[1])^2)
-;cgplot, length, sample, psym = psym, color = 'grey', /overplot, symsize = 0.5
-;x = dblarr(n_elements(length))
-;x[*] = sqrt((results[0, *] - center[0])^2 + (results[1, *] - center[1])^2)
-;xdt = [xdt, x]
-;y = dblarr(n_elements(sample))
-;y[*] = sample 
-;ydt = [ydt, y]
-;endfor
-;measure_errors = dblarr(n_elements(xdt))+1.
-;expar = 'p[0]*x^p[1]'
-;start = [1.9d10, -3d]
-;fit = mpfitexpr(expar, xdt, ydt, measure_errors, start, perror=perror, $
-;      bestnorm = bestnorm, dof= dof, quiet = 1)
-;yfit = fit[0]*xdt^fit[1]
-;cgplot, spatial_ex/xdt, yfit, /overplot
-;cgps_close 
-
 
 ;----------------------------------ellipse average------------------------------
 cgps_open, spsfig, xsize = 10, ysize = 7, /encapsulated
