@@ -23,20 +23,20 @@ stretch, 0, 255, 0.7
 ;------------------------------------------------------------------------------------------
 fits_read, fitsname, data, hdr 
 if (n_elements(psize) eq 2) then begin 
-l = [center[0] + psize[0]/2d, center[0] - psize[0]/2d]
-b = [center[1] - psize[1]/2d, center[1] + psize[1]/2d]
-adxy, hdr, l, b, cx, cy
-data = data[cx[0]:cx[1],cy[0]:cy[1],*]
-s = size(data, /dim)
-nx = s[0]
-ny = s[1]
+    l = [center[0] + psize[0]/2d, center[0] - psize[0]/2d]
+    b = [center[1] - psize[1]/2d, center[1] + psize[1]/2d]
+    adxy, hdr, l, b, cx, cy
+    data = data[cx[0]:cx[1],cy[0]:cy[1],*]
+    s = size(data, /dim)
+    nx = s[0]
+    ny = s[1]
 endif else begin 
-nx = sxpar(hdr, 'NAXIS1')
-ny = sxpar(hdr, 'NAXIS2')
-nv = sxpar(hdr, 'NAXIS3')
-xr = [0,0,nx-1,nx-1]
-yr = [0,ny-1,0,ny-1]
-xyad, hdr, xr, yr, l, b
+    nx = sxpar(hdr, 'NAXIS1')
+    ny = sxpar(hdr, 'NAXIS2')
+    nv = sxpar(hdr, 'NAXIS3')
+    xr = [0,0,nx-1,nx-1]
+    yr = [0,ny-1,0,ny-1]
+    xyad, hdr, xr, yr, l, b
 endelse
 ;----------------calculate the integration and make the plot-------------------
 cv = sxpar(hdr,'CRVAL3')
@@ -45,7 +45,7 @@ cd = sxpar(hdr,'CDELT3')/1000d
 height = (pos[3] - pos[1])/ygrid
 width = (pos[2] - pos[0])/xgrid
 textpos = [max(l)-(max(l)-min(l))*textp[0], min(b)+(max(b)-min(b))*textp[1]]
-cgps_open, file_basename(fitsname, '.fits')+'_cplot2.eps', /portrait, xsize = xgrid, ysize = ygrid*ny/nx, /encapsulated
+cgps_open, file_basename(fitsname, '.fits')+'_cplot.eps', /portrait, xsize = xgrid, ysize = ygrid*ny/nx, /encapsulated
 ;-----------some color and line setting--------------------------
 !p.CHARSIZE=0.5
 !P.Thick = 1
@@ -55,50 +55,25 @@ cgps_open, file_basename(fitsname, '.fits')+'_cplot2.eps', /portrait, xsize = xg
 !Z.Thick = 1
 for i=0, xgrid-1 do begin 
     for j=0, ygrid-1 do begin 
-    start_v = (v[0]+(i+j*xgrid)*interval)
-    end_v = (v[0]+(i+1+j*xgrid)*interval)
-    print, start_v, end_v
-    start_channel = (start_v-cv)/cd+cp-1
-    end_channel = (end_v-cv)/cd+cp-1
-    map = total(data[*,*,start_channel:end_channel], 3)*abs(cd)
-    ;insertn = 4.
-    ;n1 = (size(mapp))[1]
-    ;n2 = (size(mapp))[2]   
-    ;x = findgen(n1)
-    ;y = findgen(n2)
-    ;xs = dblarr((n1-1)*insertn+n1-1)
-    ;ys = dblarr((n2-1)*insertn+n2-1)
-    ;for k=0, n1-2 do xs[k*(insertn+1):k*(insertn+1)+insertn] = x[k] + 1./(insertn+1)*findgen(insertn+1)
-    ;for k=0, n2-2 do ys[k*(insertn+1):k*(insertn+1)+insertn] = y[k] + 1./(insertn+1)*findgen(insertn+1)
-    ;map = interpolate(mapp, xs, ys, /grid)
-    img = bytscl(map, min=trange[0], max=trange[1])
-    plot_pos = [pos[0] + i*width, pos[3] - (j+1)*height, pos[0] + (i+1)*width, pos[3] - j*height]
-    cgimage, img, position = plot_pos, /keep_aspect_ratio, /noerase
-    if i eq 0 and j eq ygrid-1 then begin
-    cgcontour, img, level =1, position = plot_pos, /nodata, /noerase, xrange = [max(l), min(l)], yrange = [min(b), max(b)],$
-           xtitle='Galactic Longitude (!Uo!N)', ytitle = 'Galactic Latitude (!Uo!N)', charsize=0.5, ytickformat='(F0.1)', $
-           xticklen=0.03, yticklen=0.03, xminor=10, xticks = 2;, xtickformat = '(I)';, xtickv=[110, 111, 112, 113]
-    cgtext, textpos[0], textpos[1], strtrim(string(start_v + interval/2, format = '(F8.2)'),2), /data, color=textcolor
-    cgplot, [111.773217], [0.686507], psym = 9, /overplot  
-    readcol, 'ellipse.track', num, ll, bb, loc
-    cgplot, ll, bb, /overplot       
-     ;a = 0.166
-     ;b = 0.166
-     ;tvellipse, a, a, 111.29167, -2.875, 0, /data, color = cgcolor('Orange')
-    ;tvbox, [0.16666667, 0.16666667], 111.741, -2.1331, color ='red', thick = 2
-    ;cgplot, 111.30833, -2.858, psym = 9, color = 'black', /overplot, /data, symsize=0.8
-    endif else begin 
-    cgcontour, img, level =1, position = plot_pos, /nodata, /noerase, xrange = [max(l), min(l)], yrange = [min(b), max(b)],$
-           xtickformat='(A1)', ytickformat='(A1)', xticklen=0.03, yticklen=0.03, xminor=10, xticks = 2;, /overplot
-    cgtext, textpos[0], textpos[1], strtrim(string(start_v + interval/2, format = '(F8.2)'),2), /data, color=textcolor
-    cgplot, [111.773217], [0.686507], psym = 9, /overplot
-    cgplot, [111.77650], [ 0.69937190], psym = 9, color = 'red', /overplot
-    cgplot, [111.82337], [0.58546492], psym = 9, color = 'purple', /overplot
-    readcol, 'ellipse.track', num, ll, bb, loc
-    cgplot, ll, bb, /overplot      
-    ;tvbox, [0.16666667, 0.16666667], 111.741, -2.1331, color ='red', thick = 2
-    ;cgplot, 111.30833, -2.858, psym = 9, color = 'black', /overplot, /data, symsize=0.8
-    endelse  
+        start_v = (v[0]+(i+j*xgrid)*interval)
+        end_v = (v[0]+(i+1+j*xgrid)*interval)
+        print, start_v, end_v
+        start_channel = (start_v-cv)/cd+cp-1
+        end_channel = (end_v-cv)/cd+cp-1
+        map = total(data[*,*,start_channel:end_channel], 3)*abs(cd)
+        img = bytscl(map, min=trange[0], max=trange[1])
+        plot_pos = [pos[0] + i*width, pos[3] - (j+1)*height, pos[0] + (i+1)*width, pos[3] - j*height]
+        cgimage, img, position = plot_pos, /keep_aspect_ratio, /noerase
+        if i eq 0 and j eq ygrid-1 then begin
+            cgcontour, img, level =1, position = plot_pos, /nodata, /noerase, xrange = [max(l), min(l)], yrange = [min(b), max(b)],$
+                xtitle='Galactic Longitude (!Uo!N)', ytitle = 'Galactic Latitude (!Uo!N)', charsize=0.5, ytickformat='(F0.1)', $
+                xticklen=0.03, yticklen=0.03, xminor=10, xticks = 2;, xtickformat = '(I)';, xtickv=[110, 111, 112, 113]
+            cgtext, textpos[0], textpos[1], strtrim(string(start_v + interval/2, format = '(F8.2)'),2), /data, color=textcolor     
+        endif else begin 
+            cgcontour, img, level =1, position = plot_pos, /nodata, /noerase, xrange = [max(l), min(l)], yrange = [min(b), max(b)],$
+                xtickformat='(A1)', ytickformat='(A1)', xticklen=0.03, yticklen=0.03, xminor=10, xticks = 2;, /overplot
+            cgtext, textpos[0], textpos[1], strtrim(string(start_v + interval/2, format = '(F8.2)'),2), /data, color=textcolor
+        endelse  
     endfor
 endfor  
 cgcolorbar, position = [plot_pos[2], plot_pos[1], plot_pos[2]+0.02, plot_pos[3]], range = [trange[0],trange[1]], /vertical, /right,$
