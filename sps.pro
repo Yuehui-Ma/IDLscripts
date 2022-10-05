@@ -7,7 +7,7 @@ end
 
 pro sps
 ;input files and parameters
-file_name = 'ngc7538_13.fits'
+file_name = 'sps.fits'
 color_table = [70, 70]
 distance = 2000d
 nannuli = 15
